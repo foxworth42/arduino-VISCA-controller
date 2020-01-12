@@ -26,7 +26,7 @@ void loop() {
   // int talentDimmer = map(analogRead(TALENT_DIMMER_PIN), 0, 1023, 0, 255);
 }
 
-byte receiveData() {
+void receiveData() {
   static byte ndx = 0;
   byte rc;
   while (visca.available() > 0) {
