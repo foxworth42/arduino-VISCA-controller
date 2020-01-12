@@ -26,7 +26,7 @@ void loop() {
   // int talentDimmer = map(analogRead(TALENT_DIMMER_PIN), 0, 1023, 0, 255);
 }
 
-void receiveData() {
+byte receiveData() {
   static byte ndx = 0;
   byte rc;
   while (visca.available() > 0) {
@@ -60,8 +60,13 @@ void readSerial() {
     char inChar = Serial.read(); // read incoming serial data:
 
     switch(inChar) {
+
+// General/Toggles
       case '1':
         initCameras();
+        break;
+      case '2':
+        toggleFocusControl();
         break;
       case '8':
         sendViscaPacket(callLedOn, sizeof(callLedOn));
@@ -73,22 +78,36 @@ void readSerial() {
         sendViscaPacket(callLedOff, sizeof(callLedOff));
         break;
 
+// Pan/Tilt
+      case 'q':
+        sendViscaPacket(panUpLeft, sizeof(panUpLeft));
+        break;
       case 'w':
         sendViscaPacket(panUp, sizeof(panUp));
+        break;
+      case 'e':
+        sendViscaPacket(panUpRight, sizeof(panUpRight));
         break;
       case 'a':
         sendViscaPacket(panLeft, sizeof(panLeft));
         break;
       case 's':
-        sendViscaPacket(panDown, sizeof(panDown));
+        sendViscaPacket(panStop, sizeof(panStop));
         break;
       case 'd':
         sendViscaPacket(panRight, sizeof(panRight));
         break;
-      case 'q':
-        sendViscaPacket(panStop, sizeof(panStop));
+      case 'z':
+        sendViscaPacket(panDownLeft, sizeof(panDownLeft));
         break;
-        
+      case 'x':
+        sendViscaPacket(panDown, sizeof(panDown));
+        break;
+      case 'c':
+        sendViscaPacket(panDownRight, sizeof(panDownRight));
+        break;
+
+// Zoom
       case 'r':
         sendViscaPacket(zoomTele, sizeof(zoomTele));
         break;
@@ -97,6 +116,17 @@ void readSerial() {
         break;
       case 'v':
         sendViscaPacket(zoomWide, sizeof(zoomWide));
+        break;
+
+// Focus
+      case 't':
+        sendViscaPacket(focusFar, sizeof(focusFar));
+        break;
+      case 'g':
+        sendViscaPacket(focusStop, sizeof(focusStop));
+        break;
+      case 'b':
+        sendViscaPacket(focusNear, sizeof(focusNear));
         break;
     }
   }
@@ -111,6 +141,20 @@ void readButtons() {
     if(button1 == true) {
       sendViscaPacket(panTiltPosReq, sizeof(panTiltPosReq));
     }
+  }
+}
+
+void toggleFocusControl() {
+  sendViscaPacket(focusModeInq, sizeof(focusModeInq));
+  delay(100);
+  receiveData();
+  Serial.print("Current Focus Status: ");
+  if(viscaMessage[2] == 2) {
+    Serial.println("Auto, Toggling to manual");
+    sendViscaPacket(focusManual, sizeof(focusManual));
+  } else {
+    Serial.println("Manual, Toggling to auto");
+    sendViscaPacket(focusAuto, sizeof(focusAuto));
   }
 }
 
