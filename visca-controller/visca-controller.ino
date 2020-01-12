@@ -1,6 +1,6 @@
 #include "visca-controller.h"
 
-LiquidCrystal_I2C lcd(0x27,20,4);
+//LiquidCrystal_I2C lcd(0x27,20,4);
 SoftwareSerial visca(VISCARX, VISCATX);
 
 void setup() {
@@ -63,6 +63,16 @@ void readSerial() {
       case '1':
         initCameras();
         break;
+      case '8':
+        sendViscaPacket(callLedOn, sizeof(callLedOn));
+        break;
+      case '9':
+        sendViscaPacket(callLedBlink, sizeof(callLedBlink));
+        break;
+      case '0':
+        sendViscaPacket(callLedOff, sizeof(callLedOff));
+        break;
+
       case 'w':
         sendViscaPacket(panUp, sizeof(panUp));
         break;
@@ -78,9 +88,7 @@ void readSerial() {
       case 'q':
         sendViscaPacket(panStop, sizeof(panStop));
         break;
-      case 'z':
-        sendViscaPacket(callLedBlink, sizeof(callLedBlink));
-        break;
+        
       case 'r':
         sendViscaPacket(zoomTele, sizeof(zoomTele));
         break;
