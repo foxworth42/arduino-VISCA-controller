@@ -4673,6 +4673,7 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <part name="C3" library="SparkFun-Capacitors" library_urn="urn:adsk.eagle:library:510" deviceset="1.0UF" device="-0805-25V-(+80/-20%)" package3d_urn="urn:adsk.eagle:package:37429/1" value="1.0uF"/>
 <part name="C4" library="SparkFun-Capacitors" library_urn="urn:adsk.eagle:library:510" deviceset="1.0UF" device="-0805-25V-(+80/-20%)" package3d_urn="urn:adsk.eagle:package:37429/1" value="1.0uF"/>
 <part name="C5" library="SparkFun-Capacitors" library_urn="urn:adsk.eagle:library:510" deviceset="1.0UF" device="-0805-25V-(+80/-20%)" package3d_urn="urn:adsk.eagle:package:37429/1" value="1.0uF"/>
+<part name="AREF" library="BeagleBone_Black_Wireless" library_urn="urn:adsk.eagle:library:6644236" deviceset="R-US_" device="0204/2V" package3d_urn="urn:adsk.eagle:package:8118463/1" value="0ohm"/>
 </parts>
 <sheets>
 <sheet>
@@ -4925,6 +4926,10 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <instance part="C5" gate="G$1" x="83.82" y="27.94" smashed="yes">
 <attribute name="NAME" x="85.344" y="30.861" size="1.778" layer="95" font="vector"/>
 <attribute name="VALUE" x="85.344" y="25.781" size="1.778" layer="96" font="vector"/>
+</instance>
+<instance part="AREF" gate="G$1" x="111.76" y="101.6" smashed="yes">
+<attribute name="NAME" x="107.95" y="103.0986" size="1.778" layer="95"/>
+<attribute name="VALUE" x="107.95" y="98.298" size="1.778" layer="96"/>
 </instance>
 </instances>
 <busses>
@@ -5191,6 +5196,11 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <pinref part="C5" gate="G$1" pin="1"/>
 <wire x1="83.82" y1="33.02" x2="83.82" y2="40.64" width="0.1524" layer="91"/>
 <label x="83.82" y="40.64" size="1.778" layer="95"/>
+</segment>
+<segment>
+<pinref part="AREF" gate="G$1" pin="2"/>
+<wire x1="116.84" y1="101.6" x2="127" y2="101.6" width="0.1524" layer="91"/>
+<label x="121.92" y="101.6" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="PAN" class="0">
@@ -5594,6 +5604,18 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <pinref part="U1" gate="G$1" pin="R1IN"/>
 <wire x1="144.78" y1="40.64" x2="154.94" y2="40.64" width="0.1524" layer="91"/>
 <label x="149.86" y="40.64" size="1.778" layer="95"/>
+</segment>
+</net>
+<net name="AREF" class="0">
+<segment>
+<pinref part="B1" gate="G$1" pin="AREF"/>
+<wire x1="27.94" y1="-12.7" x2="12.7" y2="-12.7" width="0.1524" layer="91"/>
+<label x="12.7" y="-12.7" size="1.778" layer="95"/>
+</segment>
+<segment>
+<pinref part="AREF" gate="G$1" pin="1"/>
+<wire x1="106.68" y1="101.6" x2="96.52" y2="101.6" width="0.1524" layer="91"/>
+<label x="96.52" y="101.6" size="1.778" layer="95"/>
 </segment>
 </net>
 </nets>
