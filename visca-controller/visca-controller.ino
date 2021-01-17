@@ -133,13 +133,124 @@ void readSerial() {
 }
 
 unsigned long time_now = 0;
+unsigned long pt_now = 0;
+int lastZoomPos;
+int lastZoom;
+bool panIdle = true;
+bool tiltIdle = true;
+int ptLow = 441;
+int ptHight = 581;
 void readButtons() {
+  int globalSpeed = analogRead(ZOOM);
+  int zoomSpeed = map(globalSpeed, 0, 1023, 0, 15);
+//    int ptMaxSpeed = map(globalSpeed, 0, 1023, 0, 7);
+  int ptMaxSpeed = 5;
+  int pan = analogRead(PAN);
+  int tilt = analogRead(TILT);
+
+    if(pan < ptLow || ptHight < pan) {
+      uint8_t panSpeed;
+      if(pan < ptLow) {
+        // Left
+        panSpeed = map(pan, ptLow, 0, 0, ptMaxSpeed);
+        panTilt[6] = 0x01;
+      } else {
+        panSpeed = map(pan, ptHight, 1018, 0, ptMaxSpeed);
+        // Right
+        panTilt[6] = 0x02;
+      }
+
+      if(panTilt[4] != panSpeed) {
+        panTilt[4] = panSpeed;
+        sendViscaPacket(panTilt, sizeof(panTilt), true);
+      }
+      panIdle = false;
+    } else {
+      // Stop Pan
+      panTilt[4] = 0x00;
+      panTilt[6] = 0x03;
+      if(panIdle == false) {
+        sendViscaPacket(panTilt, sizeof(panTilt), true);
+        panIdle = true;
+      }
+    }
+
+    if(tilt < ptLow || ptHight < tilt) {
+      uint8_t tiltSpeed;
+      if(tilt < ptLow) {
+        // Down
+        tiltSpeed = map(tilt, ptLow, 0, 0, ptMaxSpeed);
+        panTilt[7] = 0x02;
+      } else {
+        // Up
+        tiltSpeed = map(tilt, ptHight, 1018, 0, ptMaxSpeed);
+        panTilt[7] = 0x01;
+      }
+      
+      if(panTilt[5] != tiltSpeed) {
+        panTilt[5] = tiltSpeed;
+        sendViscaPacket(panTilt, sizeof(panTilt), true);
+      }
+      tiltIdle = false;
+    } else {
+      // Stop Tilt
+      panTilt[5] = 0x00;
+      panTilt[7] = 0x03;
+      if(tiltIdle == false) {
+        sendViscaPacket(panTilt, sizeof(panTilt), true);
+        tiltIdle = true;
+      }
+    }
+
+    
+  
   if(millis() > time_now + 100) {
     time_now = millis();
 
-    bool button1 = digitalRead(8);
-    if(button1 == true) {
-      sendViscaPacket(panTiltPosReq, sizeof(panTiltPosReq));
+//    if(
+//    if(zoomPos < lastZoomPos - 2 || lastZoomPos + 2 < zoomPos) {
+//      lastZoomPos = zoomPos;
+//      zoomPos = map(zoomPos, 0, 1023, 0, 2883);
+//      byte mask = 0xF;
+//      Serial.println(zoomPos);
+//      zoomDirect[7] = zoomPos & mask;
+//      zoomDirect[6] = zoomPos >> 4 & mask;
+//      zoomDirect[5] = zoomPos >> 8 & mask;
+//      zoomDirect[4] = zoomPos >> 12 & mask;
+//      sendViscaPacket(zoomDirect, sizeof(zoomDirect), true);
+//    }
+
+    if((bool) digitalRead(BTN1) == true) {
+      sendViscaPacket(zoomPosReq, sizeof(zoomPosReq), false);
+    }
+
+    if((bool) digitalRead(BTN3) == true) {
+      uint8_t zoomDirSpeed = (uint8_t) 0x20 + zoomSpeed;
+      zoom[4] = zoomDirSpeed;
+      sendViscaPacket(zoom, sizeof(zoom));
+    }
+    
+    if((bool) digitalRead(BTN5) == true) {
+      uint8_t zoomDirSpeed = (uint8_t) 0x30 + zoomSpeed;
+      zoom[4] = zoomDirSpeed;
+      sendViscaPacket(zoom, sizeof(zoom));
+    }
+
+//    Serial.println((bool) digitalRead(BTN7));
+//    if((bool) digitalRead(BTN7) == false) {
+//      sendViscaPacket(zoomStop, sizeof(zoomStop));
+//    }
+  }
+}
+
+void handleButton(uint8_t input, uint8_t bitPosition) {
+  bool previousStatus = (bool) bitRead(buttonStatus, bitPosition);
+  bool currentStatus = (bool) digitalRead(input);
+  if(previousStatus != currentStatus) {
+    if(currentStatus == true) {
+      bitWrite(buttonStatus, bitPosition, (int) currentStatus);
+    } else {
+      
     }
   }
 }
@@ -158,15 +269,26 @@ void toggleFocusControl() {
   }
 }
 
-void sendViscaPacket(byte* packet, int byteSize) {
-  Serial.print("Sending:");
+
+void sendViscaPacket(byte* packet, int byteSize, bool echoCommand, bool sendPacket) {
+  if(echoCommand == true) {
+    Serial.print("Sending:");
+  }
+//  visca.write(byte 0x81);
   for (int i = 0; i < byteSize; i++) 
   {
-    Serial.print(" 0x");
-    Serial.print(packet[i], HEX);
-    visca.write(packet[i]); 
+    if(echoCommand == true) {
+      Serial.print(" 0x");
+      Serial.print(packet[i], HEX);
+    }
+    if(sendPacket == true) {
+      visca.write(packet[i]);
+    } 
   }
-  Serial.println();
+//  visca.write(byte 0xFF);
+  if(echoCommand == true) {
+    Serial.println();
+  }
 }
 
 void initCameras() {

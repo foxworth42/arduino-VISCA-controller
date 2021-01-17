@@ -4660,8 +4660,6 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <part name="R9" library="BeagleBone_Black_Wireless" library_urn="urn:adsk.eagle:library:6644236" deviceset="R-US_" device="0204/2V" package3d_urn="urn:adsk.eagle:package:8118463/1" value="10kohm"/>
 <part name="R10" library="BeagleBone_Black_Wireless" library_urn="urn:adsk.eagle:library:6644236" deviceset="R-US_" device="0204/2V" package3d_urn="urn:adsk.eagle:package:8118463/1" value="10kohm"/>
 <part name="AUX1" library="con-molex" library_urn="urn:adsk.eagle:library:165" deviceset="22-23-2031" device="" package3d_urn="urn:adsk.eagle:package:8078634/1"/>
-<part name="AUX2" library="con-molex" library_urn="urn:adsk.eagle:library:165" deviceset="22-23-2031" device="" package3d_urn="urn:adsk.eagle:package:8078634/1"/>
-<part name="AUX3" library="con-molex" library_urn="urn:adsk.eagle:library:165" deviceset="22-23-2031" device="" package3d_urn="urn:adsk.eagle:package:8078634/1"/>
 <part name="I2C" library="con-molex" library_urn="urn:adsk.eagle:library:165" deviceset="22-23-2041" device="" package3d_urn="urn:adsk.eagle:package:8078635/1"/>
 <part name="EXT5V" library="con-molex" library_urn="urn:adsk.eagle:library:165" deviceset="22-23-2021" device="" package3d_urn="urn:adsk.eagle:package:8078633/1"/>
 <part name="EXT" library="BeagleBone_Black_Wireless" library_urn="urn:adsk.eagle:library:6644236" deviceset="R-US_" device="0204/2V" package3d_urn="urn:adsk.eagle:package:8118463/1" value="0ohm"/>
@@ -4851,26 +4849,6 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <instance part="AUX1" gate="-3" x="33.02" y="88.9" smashed="yes">
 <attribute name="NAME" x="35.56" y="88.138" size="1.524" layer="95"/>
 </instance>
-<instance part="AUX2" gate="-1" x="33.02" y="83.82" smashed="yes">
-<attribute name="NAME" x="35.56" y="83.058" size="1.524" layer="95"/>
-<attribute name="VALUE" x="32.258" y="85.217" size="1.778" layer="96"/>
-</instance>
-<instance part="AUX2" gate="-2" x="33.02" y="81.28" smashed="yes">
-<attribute name="NAME" x="35.56" y="80.518" size="1.524" layer="95"/>
-</instance>
-<instance part="AUX2" gate="-3" x="33.02" y="78.74" smashed="yes">
-<attribute name="NAME" x="35.56" y="77.978" size="1.524" layer="95"/>
-</instance>
-<instance part="AUX3" gate="-1" x="33.02" y="73.66" smashed="yes">
-<attribute name="NAME" x="35.56" y="72.898" size="1.524" layer="95"/>
-<attribute name="VALUE" x="32.258" y="75.057" size="1.778" layer="96"/>
-</instance>
-<instance part="AUX3" gate="-2" x="33.02" y="71.12" smashed="yes">
-<attribute name="NAME" x="35.56" y="70.358" size="1.524" layer="95"/>
-</instance>
-<instance part="AUX3" gate="-3" x="33.02" y="68.58" smashed="yes">
-<attribute name="NAME" x="35.56" y="67.818" size="1.524" layer="95"/>
-</instance>
 <instance part="I2C" gate="-1" x="71.12" y="124.46" smashed="yes">
 <attribute name="NAME" x="73.66" y="123.698" size="1.524" layer="95"/>
 <attribute name="VALUE" x="70.358" y="125.857" size="1.778" layer="96"/>
@@ -5036,16 +5014,6 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <label x="22.86" y="93.98" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="AUX2" gate="-1" pin="S"/>
-<wire x1="30.48" y1="83.82" x2="22.86" y2="83.82" width="0.1524" layer="91"/>
-<label x="22.86" y="83.82" size="1.778" layer="95"/>
-</segment>
-<segment>
-<pinref part="AUX3" gate="-1" pin="S"/>
-<wire x1="30.48" y1="73.66" x2="22.86" y2="73.66" width="0.1524" layer="91"/>
-<label x="22.86" y="73.66" size="1.778" layer="95"/>
-</segment>
-<segment>
 <pinref part="EXT5V" gate="-1" pin="S"/>
 <wire x1="68.58" y1="99.06" x2="58.42" y2="99.06" width="0.1524" layer="91"/>
 <label x="58.42" y="99.06" size="1.778" layer="95"/>
@@ -5156,16 +5124,6 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <pinref part="AUX1" gate="-3" pin="S"/>
 <wire x1="30.48" y1="88.9" x2="22.86" y2="88.9" width="0.1524" layer="91"/>
 <label x="22.86" y="88.9" size="1.778" layer="95"/>
-</segment>
-<segment>
-<pinref part="AUX2" gate="-3" pin="S"/>
-<wire x1="30.48" y1="78.74" x2="22.86" y2="78.74" width="0.1524" layer="91"/>
-<label x="22.86" y="78.74" size="1.778" layer="95"/>
-</segment>
-<segment>
-<pinref part="AUX3" gate="-3" pin="S"/>
-<wire x1="30.48" y1="68.58" x2="22.86" y2="68.58" width="0.1524" layer="91"/>
-<label x="22.86" y="68.58" size="1.778" layer="95"/>
 </segment>
 <segment>
 <pinref part="I2C" gate="-2" pin="S"/>
@@ -5422,30 +5380,6 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <pinref part="AUX1" gate="-2" pin="S"/>
 <wire x1="30.48" y1="91.44" x2="22.86" y2="91.44" width="0.1524" layer="91"/>
 <label x="22.86" y="91.44" size="1.778" layer="95"/>
-</segment>
-</net>
-<net name="AUX2" class="0">
-<segment>
-<pinref part="B1" gate="G$1" pin="A4"/>
-<wire x1="27.94" y1="10.16" x2="12.7" y2="10.16" width="0.1524" layer="91"/>
-<label x="12.7" y="10.16" size="1.778" layer="95"/>
-</segment>
-<segment>
-<pinref part="AUX2" gate="-2" pin="S"/>
-<wire x1="30.48" y1="81.28" x2="22.86" y2="81.28" width="0.1524" layer="91"/>
-<label x="22.86" y="81.28" size="1.778" layer="95"/>
-</segment>
-</net>
-<net name="AUX3" class="0">
-<segment>
-<pinref part="B1" gate="G$1" pin="A5"/>
-<wire x1="27.94" y1="7.62" x2="12.7" y2="7.62" width="0.1524" layer="91"/>
-<label x="12.7" y="7.62" size="1.778" layer="95"/>
-</segment>
-<segment>
-<pinref part="AUX3" gate="-2" pin="S"/>
-<wire x1="30.48" y1="71.12" x2="22.86" y2="71.12" width="0.1524" layer="91"/>
-<label x="22.86" y="71.12" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="EXT5V" class="0">
