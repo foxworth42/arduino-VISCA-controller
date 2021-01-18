@@ -1,6 +1,6 @@
 # Arduino VISCA Controller
 
-This is a project for using an Arduino to send VISCA commands.  This is specifically tailored for interfacing with the
+This is a project for using an Arduino to send VISCA commands.  This is tailored for interfacing with the
 Cisco TelePresence Precision series of conference cameras (specifically testing with the TTC8-02 12x zoom w/ SDI output).
 
 The TelePresence cameras have a slight quirk to controlling it over VISCA.  To get manual control over the pan/tilt/zoom
