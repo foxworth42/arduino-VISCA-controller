@@ -10,5 +10,5 @@ were controlling it with an IR remote.
 The Arduino Shield board present in the EAGLE directory is intended to make connecting to a TelePresence camera and
 wiring I/O easier.  The shield has headers to allow for powering the Arduino off its internal voltage regulator or via
 VIN (includes header points to make swapping easy).  There is also a header to provide 12v power over the RJ45
-connection to remotely power the camera (untested).  The shield incudes an RS232 transciever so it is ready to plug into
-the camera's control port with a standard ethernet cable. 
+connection to remotely power the camera.  The shield incudes an RS232 transciever so it is ready to plug into the
+camera's control port with a standard ethernet cable. 

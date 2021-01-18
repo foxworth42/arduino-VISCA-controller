@@ -31,7 +31,6 @@ bool tiltIdle = true;
 int ptLow = 441;
 int ptHight = 581;
 int ptMaxSpeed = 5;
-
 void handleHardwareControl() {
   processPan(analogRead(PAN));
 
