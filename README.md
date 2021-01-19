@@ -29,7 +29,7 @@ camera's control port with a standard ethernet cable.
 |4pin Molex Housing|2| |[Link](https://www.mouser.com/ProductDetail/538-22-01-3047/)|
 |8pin Molex Header|2| |[Link](https://www.mouser.com/ProductDetail/538-22-23-2081/)|
 |8pin Molex Housing|2| |[Link](https://www.mouser.com/ProductDetail/538-22-01-3087/)|
-|Crimp contacts for Molex housings|Lots| |[Link](https://www.mouser.com/ProductDetail/538-08-50-0114/)|
+|Crimp contacts for Molex housings|Lots| |[Link](https://www.mouser.com/ProductDetail/538-08-51-0108-LP/)|
 |Crimp tool for Molex contacts|1| |[Link](https://www.amazon.com/gp/product/B078WPT5M1/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1)|
 |Bunch of single row 2.54 pitch pin headers|Bunch| | |
 |10k Ohm Resistors|10| |

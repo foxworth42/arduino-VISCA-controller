@@ -101,9 +101,7 @@ void processButtons() {
   if(millis() > time_now + 100) {
     time_now = millis();
 
-    for (int i = 0; i < sizeof(buttons) / sizeof (buttons [0]); i++) {
-      bitWrite(buttonCurrentStatus, buttons[i], (int) digitalRead(buttons[i]));
-    }
+    collectCurrentButtonStatus();
 
     int btn1 = buttons[0];
     if(buttonPressed(btn1) == true) {
@@ -130,6 +128,12 @@ void processButtons() {
     } else if(buttonReleased(btn5) == true) {
       setButtonStatus(btn5, false);
     }
+  }
+}
+
+void collectCurrentButtonStatus() {
+  for (int i = 0; i < sizeof(buttons) / sizeof (buttons [0]); i++) {
+    bitWrite(buttonCurrentStatus, buttons[i], (int) digitalRead(buttons[i]));
   }
 }
 
