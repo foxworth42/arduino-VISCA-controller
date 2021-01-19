@@ -21,21 +21,35 @@
 #define VISCATX 3
 
 // Button inputs
-#define BTN1 4
-#define BTN2 5
-#define BTN3 6
-#define BTN4 7
-#define BTN5 8
-#define BTN6 9
-#define BTN7 10
-#define BTN8 11
-#define BTN9 12
-#define BTN10 13
+//#define BTN1 4
+//#define BTN2 5
+//#define BTN3 6
+//#define BTN4 7
+//#define BTN5 8
+//#define BTN6 9
+//#define BTN7 10
+//#define BTN8 11
+//#define BTN9 12
+//#define BTN10 13
+int buttons[] = {
+  4,  // BTN1
+  5,  // BTN2
+  6,  // BTN3
+  7,  // BTN4
+  8,  // BTN5
+  9,  // BTN6
+  10, // BTN7
+  11, // BTN8
+  12, // BTN9
+  13  // BTN10
+};
+
 
 const byte numChars = 16;
 byte viscaMessage[numChars];
 
-byte buttonStatus = 0x00;
+byte buttonPreviousStatus = 0x00;
+byte buttonCurrentStatus = 0x00;
 
 // Pan/Tilt
 byte panTilt[9] =       { 0x81, 0x01, 0x06, 0x01, 0x00, 0x00, 0x03, 0x03, 0xFF };

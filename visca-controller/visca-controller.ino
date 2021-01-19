@@ -91,57 +91,6 @@ void handleSerialControl() {
       case '0':
         sendViscaPacket(callLedOff, sizeof(callLedOff));
         break;
-
-// Pan/Tilt
-      case 'q':
-        sendViscaPacket(panUpLeft, sizeof(panUpLeft));
-        break;
-      case 'w':
-        sendViscaPacket(panUp, sizeof(panUp));
-        break;
-      case 'e':
-        sendViscaPacket(panUpRight, sizeof(panUpRight));
-        break;
-      case 'a':
-        sendViscaPacket(panLeft, sizeof(panLeft));
-        break;
-      case 's':
-        sendViscaPacket(panStop, sizeof(panStop));
-        break;
-      case 'd':
-        sendViscaPacket(panRight, sizeof(panRight));
-        break;
-      case 'z':
-        sendViscaPacket(panDownLeft, sizeof(panDownLeft));
-        break;
-      case 'x':
-        sendViscaPacket(panDown, sizeof(panDown));
-        break;
-      case 'c':
-        sendViscaPacket(panDownRight, sizeof(panDownRight));
-        break;
-
-// Zoom
-      case 'r':
-        sendViscaPacket(zoomTele, sizeof(zoomTele));
-        break;
-      case 'f':
-        sendViscaPacket(zoomStop, sizeof(zoomStop));
-        break;
-      case 'v':
-        sendViscaPacket(zoomWide, sizeof(zoomWide));
-        break;
-
-// Focus
-      case 't':
-        sendViscaPacket(focusFar, sizeof(focusFar));
-        break;
-      case 'g':
-        sendViscaPacket(focusStop, sizeof(focusStop));
-        break;
-      case 'b':
-        sendViscaPacket(focusNear, sizeof(focusNear));
-        break;
     }
   }
 }
@@ -152,21 +101,62 @@ void processButtons() {
   if(millis() > time_now + 100) {
     time_now = millis();
 
-    if((bool) digitalRead(BTN1) == true) {
+    for (int i = 0; i < sizeof(buttons) / sizeof (buttons [0]); i++) {
+      bitWrite(buttonCurrentStatus, buttons[i], (int) digitalRead(buttons[i]));
+    }
+
+    int btn1 = buttons[0];
+    if(buttonPressed(btn1) == true) {
+      setButtonStatus(btn1, true);
+      sendZoomPacket(0x20, zoomSpeed);
+    } else if(buttonReleased(btn1) == true) {
+      setButtonStatus(btn1, false);
       sendViscaPacket(zoomStop, sizeof(zoomStop));
     }
-    if((bool) digitalRead(BTN2) == true) {
-      uint8_t zoomDirSpeed = (uint8_t) 0x20 + zoomSpeed;
-      zoom[4] = zoomDirSpeed;
-      sendViscaPacket(zoom, sizeof(zoom));
+
+    int btn2 = buttons[1];
+    if(buttonPressed(btn2) == true) {
+      setButtonStatus(btn2, true);
+      sendZoomPacket(0x30, zoomSpeed);
+    } else if(buttonReleased(btn2) == true) {
+      setButtonStatus(btn2, false);
+      sendViscaPacket(zoomStop, sizeof(zoomStop));
     }
-    
-    if((bool) digitalRead(BTN3) == true) {
-      uint8_t zoomDirSpeed = (uint8_t) 0x30 + zoomSpeed;
-      zoom[4] = zoomDirSpeed;
-      sendViscaPacket(zoom, sizeof(zoom));
+
+    int btn5 = buttons[4];
+    if(buttonPressed(btn5) == true) {
+      setButtonStatus(btn5, true);
+      initCameras();
+    } else if(buttonReleased(btn5) == true) {
+      setButtonStatus(btn5, false);
     }
   }
+}
+
+bool buttonPressed(uint8_t button) {
+  return getCurrentButtonStatus(button) == true && getPreviousButtonStatus(button) == false;
+}
+
+bool buttonReleased(uint8_t button) {
+  return getCurrentButtonStatus(button) == false && getPreviousButtonStatus(button) == true;
+}
+
+bool getCurrentButtonStatus(uint8_t button) {
+  return (bool) bitRead(buttonCurrentStatus, button);
+}
+
+void sendZoomPacket(byte zoomDir, int zoomSpeed) {
+  uint8_t zoomDirSpeed = (uint8_t) zoomDir + zoomSpeed;
+  zoom[4] = zoomDirSpeed;
+  sendViscaPacket(zoom, sizeof(zoom));
+}
+
+bool getPreviousButtonStatus(uint8_t input) {
+  return (bool) bitRead(buttonPreviousStatus, input);
+}
+
+void setButtonStatus(uint8_t input, bool status) {
+  bitWrite(buttonPreviousStatus, input, (int) status);
 }
 
 void processPan(int pan) {
@@ -227,18 +217,6 @@ void processTilt(int tilt) {
   }
 }
 
-void handleButton(uint8_t input, uint8_t bitPosition) {
-  bool previousStatus = (bool) bitRead(buttonStatus, bitPosition);
-  bool currentStatus = (bool) digitalRead(input);
-  if(previousStatus != currentStatus) {
-    if(currentStatus == true) {
-      bitWrite(buttonStatus, bitPosition, (int) currentStatus);
-    } else {
-      
-    }
-  }
-}
-
 void toggleFocusControl() {
   sendViscaPacket(focusModeInq, sizeof(focusModeInq));
   delay(100);
@@ -268,7 +246,6 @@ void sendViscaPacket(byte* packet, int byteSize, bool echoCommand, bool sendPack
       visca.write(packet[i]);
     } 
   }
-//  visca.write(byte 0xFF);
   if(echoCommand == true) {
     Serial.println();
   }
