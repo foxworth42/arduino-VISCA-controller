@@ -32,16 +32,16 @@
 #define BTN9 12
 #define BTN10 13
 int buttons[] = {
-  BTN1,
-  BTN2,
-  BTN3,
-  BTN4,
-  BTN5,
-  BTN6,
-  BTN7,
-  BTN8,
-  BTN9,
-  BTN10
+    BTN1,
+    BTN2,
+    BTN3,
+    BTN4,
+    BTN5,
+    BTN6,
+    BTN7,
+    BTN8,
+    BTN9,
+    BTN10
 };
 
 
