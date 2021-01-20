@@ -1,0 +1,1 @@
+To work on this code in the standard Arduino code editor, rename `src/visca_controller.cpp` to `src/visca_controller.ino`
