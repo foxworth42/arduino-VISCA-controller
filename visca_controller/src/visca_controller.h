@@ -2,21 +2,21 @@
 #define VISCACONTROLLER
 
 #include <Arduino.h>
-#include <EEPROM.h>
+//#include <EEPROM.h>
 //#include <LiquidCrystal_I2C.h>
 #include <SoftwareSerial.h>
 
-// Pin assignments from arduno shield.
+// Toggle for echoing VISCA commands sent/received over serial monitor.
+#define DEBUG_VISCA 1
 
+// Pin assignments from arduno shield.
 // Analog inputs
 #define PAN 0
 #define TILT 1
 #define ZOOM 2
 #define AUX1 3
-#define AUX2 4
-#define AUX3 5
 
-// Serial I/O for VISCA
+// Serial I/O for VISCA communication
 #define VISCARX 2
 #define VISCATX 3
 
@@ -45,8 +45,8 @@ int buttons[] = {
 };
 
 
-const byte numChars = 16;
-byte viscaMessage[numChars];
+const byte maxViscaMessageSize = 16;
+byte viscaMessage[maxViscaMessageSize];
 
 byte buttonPreviousStatus = 0x00;
 byte buttonCurrentStatus = 0x00;
@@ -68,12 +68,12 @@ byte panTiltPosReq[5] = { 0x81, 0x09, 0x06, 0x12, 0xff }; // Resp: y0 50 0p 0q 0
 // Zoom
 // Tele: 8x 01 04 07 2p ff 
 // Wide: 8x 01 04 07 2p ff 
-byte zoom[6] =    { 0x81, 0x01, 0x04, 0x07, 0x2F, 0xff }; // 8x 01 04 07 2p ff 
-byte zoomTele[6] =    { 0x81, 0x01, 0x04, 0x07, 0x2F, 0xff }; // 8x 01 04 07 2p ff 
+byte zoomCommand[6] = {0x81, 0x01, 0x04, 0x07, 0x2F, 0xff }; // 8x 01 04 07 2p ff
+byte zoomTele[6] =    { 0x81, 0x01, 0x04, 0x07, 0x2F, 0xff }; // 8x 01 04 07 2p ff
 byte zoomWide[6] =    { 0x81, 0x01, 0x04, 0x07, 0x3F, 0xff }; // 8x 01 04 07 3p ff
 byte zoomStop[6] =    { 0x81, 0x01, 0x04, 0x07, 0x00, 0xff };
-byte zoomDirect[9] =  { 0x81, 0x01, 0x04, 0x47, 0x00, 0x00, 0x00, 0x00, 0xff }; // 8x 01 04 47 0p 0q 0r 0s ff pqrs: zoom position
-byte zoomPosReq[5] =  { 0x81, 0x09, 0x04, 0x47, 0xff }; // Resp: y0 50 0p 0q 0r 0s ff 
+byte zoomDirect[9] =  { 0x81, 0x01, 0x04, 0x47, 0x00, 0x00, 0x00, 0x00, 0xff }; // 8x 01 04 47 0p 0q 0r 0s ff pqrs: zoomCommand position
+byte zoomPosReq[5] =  { 0x81, 0x09, 0x04, 0x47, 0xff }; // Resp: y0 50 0p 0q 0r 0s ff
 
 
 // Focus
@@ -107,6 +107,22 @@ byte callLedBlink[6] =  { 0x81, 0x01, 0x33, 0x01, 0x02, 0xff};
 
 int delayTime = 500;  //Time between commands
 
-void sendViscaPacket(byte* packet, int byteSize, bool echoCommand = true, bool sendPacket = true);
+void sendViscaPacket(byte *packet, int byteSize);
+void handleHardwareControl();
+void receiveViscaData();
+void handleSerialControl();
+void processButtons();
+void collectCurrentButtonStatus();
+bool buttonPressed(uint8_t button);
+bool buttonReleased(uint8_t button);
+bool getCurrentButtonStatus(uint8_t button);
+void sendZoomPacket(byte zoomDir, int zoomSpeed);
+bool getPreviousButtonStatus(uint8_t input);
+void setButtonStatus(uint8_t input, bool status);
+void processPan(int pan);
+void processTilt(int tilt);
+void processZoom(int zoom);
+void toggleFocusControl();
+void initCameras();
 
 #endif
