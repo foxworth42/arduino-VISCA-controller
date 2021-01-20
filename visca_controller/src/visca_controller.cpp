@@ -45,9 +45,8 @@ void handleHardwareControl() {
 
 void receiveViscaData() {
     static byte ndx = 0;
-    byte rc;
     while (viscaOutput.available() > 0) {
-        rc = viscaOutput.read();
+        byte rc = viscaOutput.read();
 
         if (rc != 0xFF) {
             viscaMessage[ndx] = rc;
@@ -165,8 +164,8 @@ void setButtonStatus(uint8_t input, bool status) {
 }
 
 void processZoom(int zoom) {
-    int zoomMaxSpeed = 15;
     if (zoom < analogLowThreshold || analogHighThreshold < zoom) {
+        int zoomMaxSpeed = 15;
         uint8_t zoomSpeed;
         byte zoomDir;
         if (zoom < analogLowThreshold) {
