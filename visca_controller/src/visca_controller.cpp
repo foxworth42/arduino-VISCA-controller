@@ -173,12 +173,20 @@ void sendZoomPacket(byte zoomDir, int zoomSpeed) {
     sendViscaPacket(zoomCommand, sizeof(zoomCommand));
 }
 
-bool getAnalogActiveStatus(uint8_t input) {
+bool getAnalogCurrentStatus(uint8_t input) {
     return (bool) bitRead(analogCurrentStatus, input);
 }
 
-void setAnalogActiveStatus(uint8_t input, bool status) {
+void setAnalogCurrentStatus(uint8_t input, bool status) {
     bitWrite(analogCurrentStatus, input, (int) status);
+}
+
+bool getAnalogPreviousStatus(uint8_t input) {
+    return (bool) bitRead(analogPreviousStatus, input);
+}
+
+void setAnalogPreviousStatus(uint8_t input, bool status) {
+    bitWrite(analogPreviousStatus, input, (int) status);
 }
 
 bool getPreviousButtonStatus(uint8_t input) {
@@ -209,18 +217,19 @@ void processZoom(int zoom) {
             zoomCommand[4] = zoomDirSpeed;
             sendViscaPacket(zoomCommand, sizeof(zoomCommand));
         }
-        setAnalogActiveStatus(2, true);
+        setAnalogCurrentStatus(2, true);
     } else {
         // Stop Zoom
-        if (getAnalogActiveStatus(2) == true) {
+        if (getAnalogCurrentStatus(2) == true) {
             sendViscaPacket(zoomStop, sizeof(zoomStop));
-            setAnalogActiveStatus(2, false);
+            setAnalogCurrentStatus(2, false);
         }
     }
 }
 
 void processPan(int pan) {
     if (pan < panThresholds[0] || panThresholds[1] < pan) {
+        setAnalogCurrentStatus(0, true);
         uint8_t panSpeed;
         if (pan < panThresholds[0]) {
             // Left
@@ -232,24 +241,24 @@ void processPan(int pan) {
             panTilt[6] = 0x02;
         }
 
-        if (panTilt[4] != panSpeed) {
+        if (panTilt[4] != panSpeed || getAnalogCurrentStatus(0) != getAnalogPreviousStatus(0)) {
             panTilt[4] = panSpeed;
             sendViscaPacket(panTilt, sizeof(panTilt));
         }
-        setAnalogActiveStatus(0, true);
     } else {
+        setAnalogCurrentStatus(0, false);
         // Stop Pan
-        panTilt[4] = 0x00;
         panTilt[6] = 0x03;
-        if (getAnalogActiveStatus(0) == true) {
+        if (getAnalogCurrentStatus(0) == false && getAnalogPreviousStatus(0) == true) {
             sendViscaPacket(panTilt, sizeof(panTilt));
-            setAnalogActiveStatus(0, false);
         }
     }
+    setAnalogPreviousStatus(0, getAnalogCurrentStatus(0));
 }
 
 void processTilt(int tilt) {
     if (tilt < tiltThresholds[0] || tiltThresholds[1] < tilt) {
+        setAnalogCurrentStatus(1, true);
         uint8_t tiltSpeed;
         if (tilt < tiltThresholds[0]) {
             // Down
@@ -261,20 +270,19 @@ void processTilt(int tilt) {
             panTilt[7] = 0x01;
         }
 
-        if (panTilt[5] != tiltSpeed) {
+        if (panTilt[5] != tiltSpeed || getAnalogCurrentStatus(1) != getAnalogPreviousStatus(1)) {
             panTilt[5] = tiltSpeed;
             sendViscaPacket(panTilt, sizeof(panTilt));
         }
-        setAnalogActiveStatus(1, true);
     } else {
+        setAnalogCurrentStatus(1, false);
         // Stop Tilt
-        panTilt[5] = 0x00;
         panTilt[7] = 0x03;
-        if (getAnalogActiveStatus(1) == true) {
+        if (getAnalogCurrentStatus(1) == false && getAnalogPreviousStatus(1) == true) {
             sendViscaPacket(panTilt, sizeof(panTilt));
-            setAnalogActiveStatus(1, false);
         }
     }
+    setAnalogPreviousStatus(1, getAnalogCurrentStatus(1));
 }
 
 void toggleFocusControl() {
