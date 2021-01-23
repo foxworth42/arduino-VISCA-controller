@@ -14,6 +14,7 @@ void setup() {
     viscaOutput.begin(9600);
 
     initCameras();
+    calibrateAnalogControls();
 
     Serial.println("Started");
 }
@@ -23,14 +24,6 @@ void loop() {
     receiveViscaData();
     handleHardwareControl();
 }
-
-unsigned long time_now = 0;
-bool panIdle = true;
-bool tiltIdle = true;
-bool zoomIdle = true;
-int analogLowThreshold = 441;
-int analogHighThreshold = 581;
-int ptMaxSpeed = 5;
 
 void handleHardwareControl() {
     processPan(analogRead(PAN));
@@ -55,13 +48,37 @@ void receiveViscaData() {
                 ndx = maxViscaMessageSize - 1;
             }
         } else {
-            if (DEBUG_VISCA == 1) {
-                for (uint8_t i = 0; i < ndx; i++) {
-                    Serial.print("0x");
-                    Serial.print(viscaMessage[i], HEX);
-                    Serial.print(" ");
+            if (viscaMessage[0] == 0x90) {
+                if (DEBUG_VISCA == 1) {
+                    if (viscaMessage[1] == 0x50) {
+                        Serial.println("Command: OK");
+                    }
                 }
-                Serial.println("0xFF");
+
+                if (viscaMessage[1] == 0x60) {
+                    switch (viscaMessage[2]) {
+                        case 0x01:
+                            Serial.println("Error: Message length error");
+                        case 0x02:
+                            Serial.println("Error: Syntax error");
+                        case 0x03:
+                            Serial.println("Error: Command buffer full");
+                        case 0x04:
+                            Serial.println("Error: Command cancelled");
+                        case 0x05:
+                            Serial.println("Error: No socket (to be cancelled)");
+                        case 0x41:
+                            Serial.println("Error: Command not executable");
+                        default:
+                            Serial.print("Unknown Error: ");
+                            for (uint8_t i = 0; i < ndx; i++) {
+                                Serial.print("0x");
+                                Serial.print(viscaMessage[i], HEX);
+                                Serial.print(" ");
+                            }
+                            Serial.println("0xFF");
+                    }
+                }
             }
             ndx = 0;
             byte packet[3] = {0x10, 0x41, 0xFF};
@@ -95,6 +112,7 @@ void handleSerialControl() {
     }
 }
 
+unsigned long time_now = 0;
 void processButtons() {
     int globalSpeed = analogRead(AUX1);
     int buttonZoomSpeed = map(globalSpeed, 0, 1023, 0, 15);
@@ -155,6 +173,14 @@ void sendZoomPacket(byte zoomDir, int zoomSpeed) {
     sendViscaPacket(zoomCommand, sizeof(zoomCommand));
 }
 
+bool getAnalogActiveStatus(uint8_t input) {
+    return (bool) bitRead(analogCurrentStatus, input);
+}
+
+void setAnalogActiveStatus(uint8_t input, bool status) {
+    bitWrite(analogCurrentStatus, input, (int) status);
+}
+
 bool getPreviousButtonStatus(uint8_t input) {
     return (bool) bitRead(buttonPreviousStatus, input);
 }
@@ -164,17 +190,17 @@ void setButtonStatus(uint8_t input, bool status) {
 }
 
 void processZoom(int zoom) {
-    if (zoom < analogLowThreshold || analogHighThreshold < zoom) {
+    if (zoom < zoomThresholds[0] || zoomThresholds[1] < zoom) {
         int zoomMaxSpeed = 15;
         uint8_t zoomSpeed;
         byte zoomDir;
-        if (zoom < analogLowThreshold) {
+        if (zoom < zoomThresholds[0]) {
             // Zoom Out
-            zoomSpeed = map(zoom, analogLowThreshold, 0, 0, zoomMaxSpeed);
+            zoomSpeed = map(zoom, zoomThresholds[0], 0, 0, zoomMaxSpeed);
             zoomDir = 0x30;
         } else {
             // Zoom In
-            zoomSpeed = map(zoom, analogHighThreshold, 1018, 0, zoomMaxSpeed);
+            zoomSpeed = map(zoom, zoomThresholds[1], 1018, 0, zoomMaxSpeed);
             zoomDir = 0x20;
         }
 
@@ -183,25 +209,25 @@ void processZoom(int zoom) {
             zoomCommand[4] = zoomDirSpeed;
             sendViscaPacket(zoomCommand, sizeof(zoomCommand));
         }
-        zoomIdle = false;
+        setAnalogActiveStatus(2, true);
     } else {
         // Stop Zoom
-        if (zoomIdle == false) {
+        if (getAnalogActiveStatus(2) == true) {
             sendViscaPacket(zoomStop, sizeof(zoomStop));
-            zoomIdle = true;
+            setAnalogActiveStatus(2, false);
         }
     }
 }
 
 void processPan(int pan) {
-    if (pan < analogLowThreshold || analogHighThreshold < pan) {
+    if (pan < panThresholds[0] || panThresholds[1] < pan) {
         uint8_t panSpeed;
-        if (pan < analogLowThreshold) {
+        if (pan < panThresholds[0]) {
             // Left
-            panSpeed = map(pan, analogLowThreshold, 0, 0, ptMaxSpeed);
+            panSpeed = map(pan, panThresholds[0], 0, 0, ptMaxSpeed);
             panTilt[6] = 0x01;
         } else {
-            panSpeed = map(pan, analogHighThreshold, 1018, 0, ptMaxSpeed);
+            panSpeed = map(pan, panThresholds[1], 1018, 0, ptMaxSpeed);
             // Right
             panTilt[6] = 0x02;
         }
@@ -210,28 +236,28 @@ void processPan(int pan) {
             panTilt[4] = panSpeed;
             sendViscaPacket(panTilt, sizeof(panTilt));
         }
-        panIdle = false;
+        setAnalogActiveStatus(0, true);
     } else {
         // Stop Pan
         panTilt[4] = 0x00;
         panTilt[6] = 0x03;
-        if (panIdle == false) {
+        if (getAnalogActiveStatus(0) == true) {
             sendViscaPacket(panTilt, sizeof(panTilt));
-            panIdle = true;
+            setAnalogActiveStatus(0, false);
         }
     }
 }
 
 void processTilt(int tilt) {
-    if (tilt < analogLowThreshold || analogHighThreshold < tilt) {
+    if (tilt < tiltThresholds[0] || tiltThresholds[1] < tilt) {
         uint8_t tiltSpeed;
-        if (tilt < analogLowThreshold) {
+        if (tilt < tiltThresholds[0]) {
             // Down
-            tiltSpeed = map(tilt, analogLowThreshold, 0, 0, ptMaxSpeed);
+            tiltSpeed = map(tilt, tiltThresholds[0], 0, 0, ptMaxSpeed);
             panTilt[7] = 0x02;
         } else {
             // Up
-            tiltSpeed = map(tilt, analogHighThreshold, 1018, 0, ptMaxSpeed);
+            tiltSpeed = map(tilt, tiltThresholds[1], 1018, 0, ptMaxSpeed);
             panTilt[7] = 0x01;
         }
 
@@ -239,14 +265,14 @@ void processTilt(int tilt) {
             panTilt[5] = tiltSpeed;
             sendViscaPacket(panTilt, sizeof(panTilt));
         }
-        tiltIdle = false;
+        setAnalogActiveStatus(1, true);
     } else {
         // Stop Tilt
         panTilt[5] = 0x00;
         panTilt[7] = 0x03;
-        if (tiltIdle == false) {
+        if (getAnalogActiveStatus(1) == true) {
             sendViscaPacket(panTilt, sizeof(panTilt));
-            tiltIdle = true;
+            setAnalogActiveStatus(1, false);
         }
     }
 }
@@ -301,4 +327,24 @@ void initCameras() {
     sendViscaPacket(if_clear, sizeof(if_clear));
     delay(delayTime);  //delay to allow camera time for next command
     receiveViscaData();
+}
+
+void calibrateAnalogControls() {
+    Serial.println("Calibrating analog controls");
+    int spread = 70;
+    int panZero = analogRead(PAN);
+    panThresholds[0] = panZero - spread;
+    panThresholds[1] = panZero + spread;
+
+    int tiltZero = analogRead(TILT);
+    tiltThresholds[0] = tiltZero - spread;
+    tiltThresholds[1] = tiltZero + spread;
+
+    int zoomZero = analogRead(ZOOM);
+    zoomThresholds[0] = zoomZero - spread;
+    zoomThresholds[1] = zoomZero + spread;
+
+    int auxZero = analogRead(AUX1);
+    auxThresholds[0] = auxZero - spread;
+    auxThresholds[1] = auxZero + spread;
 }

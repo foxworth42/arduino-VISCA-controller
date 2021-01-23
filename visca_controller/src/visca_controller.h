@@ -2,12 +2,11 @@
 #define VISCACONTROLLER
 
 #include <Arduino.h>
-//#include <EEPROM.h>
 //#include <LiquidCrystal_I2C.h>
 #include <SoftwareSerial.h>
 
 // Toggle for echoing VISCA commands sent/received over serial monitor.
-#define DEBUG_VISCA 1
+#define DEBUG_VISCA 0
 
 // Pin assignments from arduno shield.
 // Analog inputs
@@ -31,7 +30,7 @@
 #define BTN8 11
 #define BTN9 12
 #define BTN10 13
-int buttons[] = {
+const int buttons[] = {
     BTN1,
     BTN2,
     BTN3,
@@ -44,12 +43,19 @@ int buttons[] = {
     BTN10
 };
 
-
+const int delayTime = 500;  //Time between commands
 const byte maxViscaMessageSize = 16;
 byte viscaMessage[maxViscaMessageSize];
 
 byte buttonPreviousStatus = 0x00;
 byte buttonCurrentStatus = 0x00;
+
+byte analogCurrentStatus = 0x00;
+const int ptMaxSpeed = 5;
+int panThresholds[2] = {0, 0};
+int tiltThresholds[2] = {0, 0};
+int zoomThresholds[2] = {0, 0};
+int auxThresholds[2] = {0, 0};
 
 // Pan/Tilt
 byte panTilt[9] =       { 0x81, 0x01, 0x06, 0x01, 0x00, 0x00, 0x03, 0x03, 0xFF };
@@ -68,7 +74,7 @@ byte panTiltPosReq[5] = { 0x81, 0x09, 0x06, 0x12, 0xff }; // Resp: y0 50 0p 0q 0
 // Zoom
 // Tele: 8x 01 04 07 2p ff 
 // Wide: 8x 01 04 07 2p ff 
-byte zoomCommand[6] = {0x81, 0x01, 0x04, 0x07, 0x2F, 0xff }; // 8x 01 04 07 2p ff
+byte zoomCommand[6] = { 0x81, 0x01, 0x04, 0x07, 0x2F, 0xff }; // 8x 01 04 07 2p ff
 byte zoomTele[6] =    { 0x81, 0x01, 0x04, 0x07, 0x2F, 0xff }; // 8x 01 04 07 2p ff
 byte zoomWide[6] =    { 0x81, 0x01, 0x04, 0x07, 0x3F, 0xff }; // 8x 01 04 07 3p ff
 byte zoomStop[6] =    { 0x81, 0x01, 0x04, 0x07, 0x00, 0xff };
@@ -105,8 +111,6 @@ byte callLedOn[6] =     { 0x81, 0x01, 0x33, 0x01, 0x01, 0xff};
 byte callLedOff[6] =    { 0x81, 0x01, 0x33, 0x01, 0x00, 0xff};
 byte callLedBlink[6] =  { 0x81, 0x01, 0x33, 0x01, 0x02, 0xff};
 
-int delayTime = 500;  //Time between commands
-
 void sendViscaPacket(byte *packet, int byteSize);
 void handleHardwareControl();
 void receiveViscaData();
@@ -117,6 +121,8 @@ bool buttonPressed(uint8_t button);
 bool buttonReleased(uint8_t button);
 bool getCurrentButtonStatus(uint8_t button);
 void sendZoomPacket(byte zoomDir, int zoomSpeed);
+bool getAnalogActiveStatus(uint8_t input);
+void setAnalogActiveStatus(uint8_t input, bool status);
 bool getPreviousButtonStatus(uint8_t input);
 void setButtonStatus(uint8_t input, bool status);
 void processPan(int pan);
@@ -124,5 +130,6 @@ void processTilt(int tilt);
 void processZoom(int zoom);
 void toggleFocusControl();
 void initCameras();
+void calibrateAnalogControls();
 
 #endif
