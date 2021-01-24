@@ -81,8 +81,6 @@ void receiveViscaData() {
                 }
             }
             ndx = 0;
-            byte packet[3] = {0x10, 0x41, 0xFF};
-            viscaOutput.write(packet, 3);
         }
     }
 }
