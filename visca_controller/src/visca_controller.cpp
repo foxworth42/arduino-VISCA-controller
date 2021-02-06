@@ -318,19 +318,25 @@ void sendViscaPacket(byte *packet, int byteSize) {
 void initCameras() {
     //Send Address command
     Serial.println("Setting addresses...");
-    sendViscaPacket(address_command, sizeof(address_command));
+    sendViscaPacket(addressCommand, sizeof(addressCommand));
     delay(delayTime);  //delay to allow camera time for next command
     receiveViscaData();
 
     // Turn off IR control
     Serial.println("Disabling IR control...");
-    sendViscaPacket(ir_off, sizeof(ir_off));
+    sendViscaPacket(irOff, sizeof(irOff));
+    delay(delayTime);  //delay to allow camera time for next command
+    receiveViscaData();
+
+    // Set camera resolution.  Needed for camera w/o DIP switch control of video format.
+    Serial.println("Setting camera resolution...");
+    sendViscaPacket(videoFormat, sizeof(videoFormat));
     delay(delayTime);  //delay to allow camera time for next command
     receiveViscaData();
 
     //Send IF_clear command
     Serial.println("Sending IF_Clear...");
-    sendViscaPacket(if_clear, sizeof(if_clear));
+    sendViscaPacket(ifClear, sizeof(ifClear));
     delay(delayTime);  //delay to allow camera time for next command
     receiveViscaData();
 }
